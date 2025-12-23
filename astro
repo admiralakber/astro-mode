@@ -1,0 +1,103 @@
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p gammastep wlsunset
+
+# 🔴 Astronomy Red Toggle for Sway/Wayland
+# Usage: astro [on|off|status]
+#   astro        - toggle on/off
+#   astro on     - enable astronomy red mode
+#   astro off    - disable astronomy red mode
+#   astro status - show current status
+
+set -euo pipefail
+
+# Clean up any existing instances
+cleanup() {
+  pkill -f 'gammastep.*wayland' 2>/dev/null || true
+  pkill -f 'wlsunset' 2>/dev/null || true
+  timeout 1 gammastep -x 2>/dev/null || true
+}
+
+# Check if astronomy mode is active
+is_active() {
+  pgrep -f 'gammastep.*wayland' >/dev/null || pgrep -f 'wlsunset' >/dev/null
+}
+
+# Show status
+show_status() {
+  if is_active; then
+    echo "🔴 Astronomy red mode: ON"
+    pgrep -f 'gammastep.*wayland' >/dev/null && echo "   Using: gammastep"
+    pgrep -f 'wlsunset' >/dev/null && echo "   Using: wlsunset"
+  else
+    echo "🔵 Astronomy red mode: OFF"
+  fi
+}
+
+# Enable astronomy red mode
+enable() {
+  if is_active; then
+    echo "🔴 Already active"
+    return 0
+  fi
+  
+  echo "🔴 Entering blood-red mode"
+  cleanup
+  
+  if command -v gammastep >/dev/null 2>&1; then
+    # Use setsid if available (no nohup.out), otherwise nohup with redirection
+    if command -v setsid >/dev/null 2>&1; then
+      setsid sh -c 'exec gammastep -m wayland -P -O 1000 -g 1.0:0.1:0.1 </dev/null >/dev/null 2>&1' &
+    else
+      nohup sh -c 'exec gammastep -m wayland -P -O 1000 -g 1.0:0.1:0.1 </dev/null >/dev/null 2>&1' >/dev/null 2>&1 &
+    fi
+    disown
+  elif command -v wlsunset >/dev/null 2>&1; then
+    if command -v setsid >/dev/null 2>&1; then
+      setsid sh -c 'exec wlsunset -t 1000 -T 1000 -S 00:00 -s 23:59 </dev/null >/dev/null 2>&1' &
+    else
+      nohup sh -c 'exec wlsunset -t 1000 -T 1000 -S 00:00 -s 23:59 </dev/null >/dev/null 2>&1' >/dev/null 2>&1 &
+    fi
+    disown
+  else
+    echo "❌ Error: Neither gammastep nor wlsunset found in PATH" >&2
+    exit 1
+  fi
+}
+
+# Disable astronomy red mode
+disable() {
+  if ! is_active; then
+    echo "🔵 Already off"
+    return 0
+  fi
+  
+  echo "🔵 Back to normal vision"
+  cleanup
+}
+
+# Main logic
+case "${1:-}" in
+  on)
+    enable
+    ;;
+  off)
+    disable
+    ;;
+  status)
+    show_status
+    ;;
+  "")
+    # Toggle mode
+    if is_active; then
+      disable
+    else
+      enable
+    fi
+    ;;
+  *)
+    echo "Usage: astro [on|off|status]" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
