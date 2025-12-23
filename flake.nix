@@ -7,14 +7,15 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      package = import ./default.nix { inherit pkgs; };
     in {
     # Define the default package as a derivation, passing pkgs
-    defaultPackage.${system} = import ./default.nix { inherit pkgs; };
+    packages.${system}.default = package;
 
     # Define the app for nix run
     apps.${system}.default = {
       type = "app";
-      program = "${self.defaultPackage.${system}}/bin/astro";
+      program = "${package}/bin/astro";
     };
   };
 }
