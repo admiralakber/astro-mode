@@ -21,13 +21,14 @@ Unlike generic blue-light filters, this tool applies an extreme red filter optim
 - ✅ **Auto-detects tools** — uses `gammastep` or `wlsunset` automatically
 - ✅ **Status checking** — see current state with `astro status`
 - ✅ **Clean process management** — properly handles background processes
-- ✅ **Nix-native** — works seamlessly with `nix run` or traditional installation
+- ✅ **Portable bash** — runs on any Linux with bash + a red-filter tool
+- ✅ **Nix-native** — `nix run` / flake install wraps deps for you
 
 ## Quick Start
 
 ### Nix Users (Recommended)
 
-Run directly without installation:
+Zero-install run (flake wraps `gammastep` / `wlsunset` onto `PATH`):
 
 ```bash
 nix run github:admiralakber/astro-mode
@@ -40,28 +41,39 @@ nix profile install github:admiralakber/astro-mode
 astro
 ```
 
-### Traditional Installation
+From a checkout, drop into a shell with the deps:
 
-1. Make the script executable:
+```bash
+nix-shell   # uses ./shell.nix
+./astro status
+```
+
+### Traditional Installation (no Nix)
+
+The script shebang is plain `#!/usr/bin/env bash` — no `nix-shell` required.
+
+1. Install a red-filter backend:
+   ```bash
+   # Arch Linux
+   sudo pacman -S gammastep   # and/or wlsunset
+
+   # Debian/Ubuntu
+   sudo apt install gammastep # and/or wlsunset
+
+   # Fedora
+   sudo dnf install gammastep # and/or wlsunset
+   ```
+
+2. Install the script somewhere on your `PATH`:
    ```bash
    chmod +x astro
+   sudo install -Dm755 astro /usr/local/bin/astro
+   # or: mkdir -p ~/.local/bin && cp astro ~/.local/bin/
    ```
 
-2. Install dependencies:
+3. Run it:
    ```bash
-   # NixOS/Nix
-   nix-shell -p gammastep wlsunset
-   
-   # Arch Linux
-   sudo pacman -S gammastep wlsunset
-   
-   # Debian/Ubuntu
-   sudo apt install gammastep wlsunset
-   ```
-
-3. Add to your PATH or run directly:
-   ```bash
-   ./astro
+   astro
    ```
 
 ## Usage
@@ -82,6 +94,20 @@ astro status
 
 ## How It Works
 
+```text
+┌─────────────────┐     prefers      ┌────────────┐
+│  astro (bash)   │ ───────────────► │ gammastep  │
+│  on / off / …   │     fallback     │  wlsunset  │
+└─────────────────┘ ───────────────► └────────────┘
+         │
+         │  Nix path only
+         ▼
+┌─────────────────────────────────────┐
+│ flake / default.nix wraps PATH with │
+│ gammastep, wlsunset, procps, …      │
+└─────────────────────────────────────┘
+```
+
 The script automatically detects and uses either:
 - **gammastep** (preferred) — applies extreme red filter via Wayland protocol
 - **wlsunset** (fallback) — alternative Wayland colour temperature tool
@@ -91,8 +117,9 @@ Both are configured to apply maximum red filtering suitable for astronomy work.
 ## Requirements
 
 - **Wayland compositor** (Sway, Hyprland, wlroots-based, etc.)
-- Either `gammastep` or `wlsunset` installed
-- Linux (tested on NixOS, works on other distributions)
+- Either `gammastep` or `wlsunset` installed (or provided by the Nix wrapper)
+- **bash** on `PATH`
+- Linux (tested on NixOS; works on other distributions)
 
 ## Why This Exists
 
