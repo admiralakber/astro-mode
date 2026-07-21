@@ -4,6 +4,14 @@
 
 [![GitHub Stars](https://img.shields.io/github/stars/admiralakber/astro-mode?style=for-the-badge&color=%23ffc0cb)](https://github.com/admiralakber/astro-mode/stargazers)
 
+<p align="center">
+  <img src="assets/demo.gif" alt="astro-mode toggling blood-red astronomy filter on and off" width="900" />
+</p>
+
+<p align="center">
+  <img src="assets/demo-compare.png" alt="Side-by-side: astro off vs astro on" width="900" />
+</p>
+
 ## What is this?
 
 `astro-mode` is a simple CLI tool that instantly toggles your Wayland/Sway display into **blood-red astronomy mode** — perfect for preserving night vision during stargazing sessions, late-night coding, or any time you need to protect your dark adaptation.
