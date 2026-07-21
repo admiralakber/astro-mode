@@ -2,7 +2,6 @@
 
 **Toggle astronomy red mode for Wayland/Sway** — preserve your night vision with a single command.
 
-[![Latest Tag](https://img.shields.io/github/tag/admiralakber/astro-mode?color=%23ffb7c5&style=for-the-badge)](https://github.com/admiralakber/astro-mode/releases)
 [![GitHub Stars](https://img.shields.io/github/stars/admiralakber/astro-mode?style=for-the-badge&color=%23ffc0cb)](https://github.com/admiralakber/astro-mode/stargazers)
 
 ## What is this?
@@ -93,20 +92,6 @@ astro status
 ```
 
 ## How It Works
-
-```text
-┌─────────────────┐     prefers      ┌────────────┐
-│  astro (bash)   │ ───────────────► │ gammastep  │
-│  on / off / …   │     fallback     │  wlsunset  │
-└─────────────────┘ ───────────────► └────────────┘
-         │
-         │  Nix path only
-         ▼
-┌─────────────────────────────────────┐
-│ flake / default.nix wraps PATH with │
-│ gammastep, wlsunset, procps, …      │
-└─────────────────────────────────────┘
-```
 
 The script automatically detects and uses either:
 - **gammastep** (preferred) — applies extreme red filter via Wayland protocol
